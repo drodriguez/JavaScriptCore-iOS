@@ -131,7 +131,8 @@ class FrameworkBuild(object):
         for (bld, archs) in [self.devicebuildarm64, ["arm64"]], \
                             [self.devicebuildarmv7, ["armv7"]], \
                             [self.devicebuildarmv7s, ["armv7s"]], \
-                            [self.simulatorbuild, ["i386"]]:
+                            [self.simulatorbuild, ["i386"]], \
+                            [self.simulatorbuild, ["x86_64"]]:
             bld.archs = archs
             bld.scheme = scheme
             bld.conf = conf
