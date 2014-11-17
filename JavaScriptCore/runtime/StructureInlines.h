@@ -197,7 +197,7 @@ inline bool Structure::isValid(ExecState* exec, StructureChain* cachedPrototypeC
     return isValid(exec->lexicalGlobalObject(), cachedPrototypeChain);
 }
 
-inline bool Structure::putWillGrowOutOfLineStorage()
+bool Structure::putWillGrowOutOfLineStorage()
 {
     checkOffsetConsistency();
 
