@@ -125,12 +125,10 @@ class FrameworkBuild(object):
         self.name = name
         self.devicebuildarm64 = XcodeBuild(project, derived_data_path=derived_data_path)
         self.devicebuildarmv7 = XcodeBuild(project, derived_data_path=derived_data_path)
-        self.devicebuildarmv7s = XcodeBuild(project, derived_data_path=derived_data_path)
         self.simulatorbuild = XcodeBuild(project, derived_data_path=derived_data_path)
         self.outdir = outdir
         for (bld, archs) in [self.devicebuildarm64, ["arm64"]], \
                             [self.devicebuildarmv7, ["armv7"]], \
-                            [self.devicebuildarmv7s, ["armv7s"]], \
                             [self.simulatorbuild, ["i386"]], \
                             [self.simulatorbuild, ["x86_64"]]:
             bld.archs = archs
@@ -145,7 +143,6 @@ class FrameworkBuild(object):
         # Run the builds of the libraries:
         self.devicebuildarm64.build()
         self.devicebuildarmv7.build()
-        self.devicebuildarmv7s.build()
         self.simulatorbuild.build()
 
         # Create the framework directory structure:
@@ -170,7 +167,6 @@ class FrameworkBuild(object):
         lipo_cmd = ["lipo", "-create",
                     self.devicebuildarm64.built_product_path(),
                     self.devicebuildarmv7.built_product_path(),
-                    self.devicebuildarmv7s.built_product_path(),
                     self.simulatorbuild.built_product_path(),
                     "-output", lib_path]
         logging.debug("Executing: %s" % " ".join(lipo_cmd))
