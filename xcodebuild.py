@@ -123,14 +123,15 @@ class FrameworkBuild(object):
                  derived_data_path=None):
         self.scheme = scheme
         self.name = name
-        self.devicebuildarm64 = XcodeBuild(project, derived_data_path=derived_data_path)
-        self.devicebuildarmv7 = XcodeBuild(project, derived_data_path=derived_data_path)
-        self.simulatorbuild = XcodeBuild(project, derived_data_path=derived_data_path)
+        self.devicebuild_arm64 = XcodeBuild(project, derived_data_path=derived_data_path + '_arm64')
+        self.devicebuild_armv7 = XcodeBuild(project, derived_data_path=derived_data_path + '_arm7')
+        self.simulatorbuild_i386 = XcodeBuild(project, derived_data_path=derived_data_path + '_i386')
+        self.simulatorbuild_x86_64 = XcodeBuild(project, derived_data_path=derived_data_path + '_x86_64')
         self.outdir = outdir
-        for (bld, archs) in [self.devicebuildarm64, ["arm64"]], \
-                            [self.devicebuildarmv7, ["armv7"]], \
-                            [self.simulatorbuild, ["i386"]], \
-                            [self.simulatorbuild, ["x86_64"]]:
+        for (bld, archs) in [self.devicebuild_arm64, ["arm64"]], \
+                            [self.devicebuild_armv7, ["armv7"]], \
+                            [self.simulatorbuild_i386, ["i386"]], \
+                            [self.simulatorbuild_x86_64, ["x86_64"]]:
             bld.archs = archs
             bld.scheme = scheme
             bld.conf = conf
@@ -141,9 +142,10 @@ class FrameworkBuild(object):
             name = name.replace(" ", "-")
 
         # Run the builds of the libraries:
-        self.devicebuildarm64.build()
-        self.devicebuildarmv7.build()
-        self.simulatorbuild.build()
+        self.devicebuild_arm64.build()
+        self.devicebuild_armv7.build()
+        self.simulatorbuild_i386.build()
+        self.simulatorbuild_x86_64.build()
 
         # Create the framework directory structure:
         temp_dir = tempfile.mkdtemp()
@@ -161,13 +163,14 @@ class FrameworkBuild(object):
                    os.path.join(framework_dir, name))
 
         # Move public headers:
-        os.renames(self.devicebuildarm64.public_headers_path(), headers_dir)
+        os.renames(self.devicebuild_arm64.public_headers_path(), headers_dir)
 
         # Use lipo to create one fat static library:
         lipo_cmd = ["lipo", "-create",
-                    self.devicebuildarm64.built_product_path(),
-                    self.devicebuildarmv7.built_product_path(),
-                    self.simulatorbuild.built_product_path(),
+                    self.devicebuild_arm64.built_product_path(),
+                    self.devicebuild_armv7.built_product_path(),
+                    self.simulatorbuild_i386.built_product_path(),
+                    self.simulatorbuild_x86_64.built_product_path(),
                     "-output", lib_path]
         logging.debug("Executing: %s" % " ".join(lipo_cmd))
         if subprocess.call(lipo_cmd):
