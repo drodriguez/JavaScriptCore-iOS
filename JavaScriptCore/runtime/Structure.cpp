@@ -1079,6 +1079,26 @@ void Structure::dumpContextHeader(PrintStream& out)
     out.print("Structures:");
 }
 
+bool Structure::putWillGrowOutOfLineStorage()
+{
+  checkOffsetConsistency();
+
+  ASSERT(outOfLineCapacity() >= outOfLineSize());
+
+  if (!propertyTable()) {
+    unsigned currentSize = numberOfOutOfLineSlotsForLastOffset(m_offset);
+    ASSERT(outOfLineCapacity() >= currentSize);
+    return currentSize == outOfLineCapacity();
+  }
+
+  ASSERT(totalStorageCapacity() >= propertyTable()->propertyStorageSize());
+  if (propertyTable()->hasDeletedOffset())
+    return false;
+
+  ASSERT(totalStorageCapacity() >= propertyTable()->size());
+  return propertyTable()->size() == totalStorageCapacity();
+}
+
 #if DO_PROPERTYMAP_CONSTENCY_CHECK
 
 void PropertyTable::checkConsistency()
